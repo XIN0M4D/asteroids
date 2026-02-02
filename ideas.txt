@@ -1,0 +1,15 @@
+ideas for further development of the game in order to further devlopment my skills.
+- scoreboard
+- player sprite color change ( based on score )
+- simple power ups ( faster shoot speed, insta kill shot, double points, shield, bombs)
+- simple debufs ( homing asteroids?)
+
+from boot.dev
+- multiple lives/respawning
+- explosion affect for the asteroids
+- player movement exeleration
+- objects wrap around screen instead of disapearing
+- background image?
+- different weapon types ( laser, shotgun)
+- adjust asteroid shape
+- change palyer hit box to match sprite
