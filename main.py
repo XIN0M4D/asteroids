@@ -8,6 +8,7 @@ from asteroidfield import AsteroidField
 from logger import log_event
 from circleshape import CircleShape
 from shot import Shot
+from shield_buff import ShieldBuff
 def show_start_menu(screen):
     font_title = pygame.font.SysFont(None, 72)
     font_info = pygame.font.SysFont(None, 36)
@@ -44,15 +45,18 @@ def run_game(screen):
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
+    ShieldBuffs = pygame.sprite.Group()
     Player.containers = (updatable, drawable)
     Asteroid.containers = (asteroids, updatable, drawable)
     AsteroidField.containers = (updatable,)
     Shot.containers = (shots, drawable, updatable)
+    ShieldBuff.containers = (ShieldBuffs,drawable, updatable)
     clock = pygame.time.Clock()
     dt = 0
     player = Player( SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     asteroid_field = AsteroidField()
     score = 0
+    shield_state = False
     while True:
         log_state()
         for event in pygame.event.get():
@@ -60,11 +64,22 @@ def run_game(screen):
                 return
         screen.fill("black")
         updatable.update(dt)
+        for shieldbuff in ShieldBuffs:
+            if shieldbuff.collides_with(player):
+                shieldbuff.kill()
+                log_event("shield_gained")
+                shield_state = True
+                player.color = "blue"
         for object in asteroids:
-            if object.collides_with(player):
-                log_event("player_hit")
-                score = 0
-                return
+            if object.collides_with(player) and shield_state == True:
+                log_event("player_hit, shiled_lost")
+                object.kill()
+                shield_state = False
+                player.color = "pink"
+            elif object.collides_with(player) and shield_state == False:
+                 log_event("player_hit")
+                 score = 0
+                 return
         for object in asteroids:
             for shot in shots:
                 if object.collides_with(shot):

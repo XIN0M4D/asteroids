@@ -3,6 +3,7 @@ from constants import LINE_WIDTH, ASTEROID_MIN_RADIUS
 import pygame
 import random
 from logger import log_event
+from shield_buff import ShieldBuff
 
 class Asteroid(CircleShape):
     def __init__(self, x, y, radius):
@@ -17,6 +18,9 @@ class Asteroid(CircleShape):
     def split(self):
         self.kill()
         if self.radius <= ASTEROID_MIN_RADIUS:
+            drop_chance = random.randint(1, 50)
+            if drop_chance == 1:
+                ShieldBuff(self.position, self.position)
             return "killed"
         log_event("asteroid_split")
         random_angle = random.uniform(20, 50)

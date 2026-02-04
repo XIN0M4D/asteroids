@@ -4,7 +4,15 @@ ideas for further development of the game in order to further devlopment my skil
 - player sprite color change ( based on score )(scrapped idea, plan to use colour change to indicate power up state)
 - [
     simple power ups ( faster shoot speed, insta kill shot, double points, shield, bombs)
-    simple debufs ( homing asteroids?)
+    shield= false
+    if player.collides_with(shield_buff):
+    shield = True
+
+    if player.collides_with(asteroid) and shield = true:
+    shield = false
+    asteroid.kill()
+
+    simple debufs ( homing asteroids?, smaller shot)
     dropped by asteroids
     ]
 

@@ -9,6 +9,7 @@ class Player(CircleShape):
         super().__init__(x, y, PLAYER_RADIUS)
         self.rotation = 0
         self.shot_cooldown_timer = 0
+        self.color = "pink"
     
     
     def triangle(self):
@@ -20,7 +21,7 @@ class Player(CircleShape):
         return [a, b, c]
 
     def draw(self, screen):
-        pygame.draw.polygon(screen, "white", self.triangle(), LINE_WIDTH)
+        pygame.draw.polygon(screen, self.color, self.triangle(), LINE_WIDTH)
 
     def rotate(self, dt):
         self.rotation += (PLAYER_TURN_SPEED * dt)
