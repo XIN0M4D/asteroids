@@ -8,8 +8,36 @@ from asteroidfield import AsteroidField
 from logger import log_event
 from circleshape import CircleShape
 from shot import Shot
-def main():
-    pygame.init()
+def show_start_menu(screen):
+    font_title = pygame.font.SysFont(None, 72)
+    font_info = pygame.font.SysFont(None, 36)
+
+    clock = pygame.time.Clock()
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE or event.key == pygame.K_RETURN:
+                    waiting = False
+
+        screen.fill("black")
+
+        title_surf = font_title.render("ASTEROIDS", True, (255, 255, 255))
+        info_surf = font_info.render("Press SPACE to start", True, (200, 200, 200))
+
+        title_rect = title_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 40))
+        info_rect = info_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 20))
+
+        screen.blit(title_surf, title_rect)
+        screen.blit(info_surf, info_rect)
+
+        pygame.display.flip()
+        clock.tick(60)
+
+def run_game(screen):
     pygame.font.init()
     font = pygame.font.SysFont(None, 36)
     updatable = pygame.sprite.Group()
@@ -22,7 +50,6 @@ def main():
     Shot.containers = (shots, drawable, updatable)
     clock = pygame.time.Clock()
     dt = 0
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     player = Player( SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     asteroid_field = AsteroidField()
     score = 0
@@ -36,9 +63,8 @@ def main():
         for object in asteroids:
             if object.collides_with(player):
                 log_event("player_hit")
-                print("game over!")
                 score = 0
-                sys.exit()
+                return
         for object in asteroids:
             for shot in shots:
                 if object.collides_with(shot):
@@ -57,5 +83,9 @@ def main():
         dt = clock.tick(60) / 1000
         
 if __name__ == "__main__":
-    main()
+    pygame.init()
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    while True:
+        show_start_menu(screen)
+        run_game(screen)
 
