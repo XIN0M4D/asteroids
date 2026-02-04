@@ -10,6 +10,8 @@ from circleshape import CircleShape
 from shot import Shot
 def main():
     pygame.init()
+    pygame.font.init()
+    font = pygame.font.SysFont(None, 36)
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
@@ -23,6 +25,7 @@ def main():
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     player = Player( SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     asteroid_field = AsteroidField()
+    score = 0
     while True:
         log_state()
         for event in pygame.event.get():
@@ -34,15 +37,22 @@ def main():
             if object.collides_with(player):
                 log_event("player_hit")
                 print("game over!")
+                score = 0
                 sys.exit()
         for object in asteroids:
             for shot in shots:
                 if object.collides_with(shot):
                     log_event("asteroid_shot")
                     shot.kill()
-                    object.split()
+                    result = object.split()
+                    if result == "split":
+                        score += 1
+                    elif result == "killed":
+                        score += 5
         for sprite in drawable:
             sprite.draw(screen)
+        score_surface = font.render(f"Score: {score}", True, (255, 255, 255))
+        screen.blit(score_surface, (10, 690))
         pygame.display.flip()
         dt = clock.tick(60) / 1000
         
