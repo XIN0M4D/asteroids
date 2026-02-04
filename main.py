@@ -9,6 +9,7 @@ from logger import log_event
 from circleshape import CircleShape
 from shot import Shot
 from shield_buff import ShieldBuff
+from piercing_shots import PiercingShot
 def show_start_menu(screen):
     font_title = pygame.font.SysFont(None, 72)
     font_info = pygame.font.SysFont(None, 36)
@@ -46,11 +47,13 @@ def run_game(screen):
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
     ShieldBuffs = pygame.sprite.Group()
+    PiercingShots = pygame.sprite.Group()
     Player.containers = (updatable, drawable)
     Asteroid.containers = (asteroids, updatable, drawable)
     AsteroidField.containers = (updatable,)
     Shot.containers = (shots, drawable, updatable)
     ShieldBuff.containers = (ShieldBuffs,drawable, updatable)
+    PiercingShot.containers = (PiercingShots, drawable, updatable)
     clock = pygame.time.Clock()
     dt = 0
     player = Player( SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
@@ -70,6 +73,11 @@ def run_game(screen):
                 log_event("shield_gained")
                 shield_state = True
                 player.color = "blue"
+        for piercingshot in PiercingShots:
+            if piercingshot.collides_with(player):
+                log_event("piercing_shots_gained")
+                piercingshot.kill()
+                player.piercing_shot_count += 25
         for object in asteroids:
             if object.collides_with(player) and shield_state == True:
                 log_event("player_hit, shiled_lost")
@@ -82,13 +90,20 @@ def run_game(screen):
                  return
         for object in asteroids:
             for shot in shots:
-                if object.collides_with(shot):
+                if object.collides_with(shot) and player.piercing_shot_count > 0:
                     log_event("asteroid_shot")
-                    shot.kill()
                     result = object.split()
                     if result == "split":
                         score += 1
                     elif result == "killed":
+                        score += 5
+                elif object.collides_with(shot):
+                     log_event("asteroid_shot")
+                     shot.kill()
+                     result = object.split()
+                     if result == "split":
+                        score += 1
+                     elif result == "killed":
                         score += 5
         for sprite in drawable:
             sprite.draw(screen)

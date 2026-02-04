@@ -3,14 +3,19 @@ ideas for further development of the game in order to further devlopment my skil
 -hi score board, shows after player is hit, and acts as an intermediary screen before returning to main menu)
 - player sprite color change ( based on score )(scrapped idea, plan to use colour change to indicate power up state)
 - [
-    simple power ups ( faster shoot speed, insta kill shot, double points, shield, bombs)
-    shield= false
-    if player.collides_with(shield_buff):
-    shield = True
+    simple power ups ( faster shoot speed, insta kill shot, double points, , bombs)
+    piercing shots
 
-    if player.collides_with(asteroid) and shield = true:
-    shield = false
-    asteroid.kill()
+    piering shots = 0
+
+    player.collides_with(buff)
+    piercing shots += 25
+
+    if piercing shots > 0, no shot.kill on impact
+
+    each time shot is pressed, piercing shots -= 1
+    
+
 
     simple debufs ( homing asteroids?, smaller shot)
     dropped by asteroids

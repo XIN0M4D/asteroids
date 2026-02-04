@@ -4,6 +4,7 @@ import pygame
 import random
 from logger import log_event
 from shield_buff import ShieldBuff
+from piercing_shots import PiercingShot
 
 class Asteroid(CircleShape):
     def __init__(self, x, y, radius):
@@ -21,6 +22,8 @@ class Asteroid(CircleShape):
             drop_chance = random.randint(1, 50)
             if drop_chance == 1:
                 ShieldBuff(self.position, self.position)
+            elif drop_chance == 2 or drop_chance == 3 or drop_chance == 4:
+                PiercingShot(self.position, self.position)
             return "killed"
         log_event("asteroid_split")
         random_angle = random.uniform(20, 50)

@@ -10,6 +10,7 @@ class Player(CircleShape):
         self.rotation = 0
         self.shot_cooldown_timer = 0
         self.color = "pink"
+        self.piercing_shot_count = 0
     
     
     def triangle(self):
@@ -34,11 +35,20 @@ class Player(CircleShape):
 
     def shoot(self):
         if self.shot_cooldown_timer > 0:
-            pass
+            return
+        
+        shot = Shot(self.position.x, self.position.y, SHOT_RADIUS)
+        shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOT_SPEED
+
+        if self.piercing_shot_count > 0:
+            shot.color = "red"  
+            self.piercing_shot_count -= 1
         else:
-            shot = Shot(self.position.x, self.position.y, SHOT_RADIUS)
-            shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOT_SPEED
-            self.shot_cooldown_timer = PLAYER_SHOOT_COOLDOWN_SECONDS
+            shot.color = "pink"  
+    
+        self.shot_cooldown_timer = PLAYER_SHOOT_COOLDOWN_SECONDS
+        if self.piercing_shot_count > 0:
+            self.piercing_shot_count -= 1
         
 
     def update(self, dt):
