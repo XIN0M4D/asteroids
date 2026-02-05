@@ -11,6 +11,8 @@ class Player(CircleShape):
         self.shot_cooldown_timer = 0
         self.color = "pink"
         self.piercing_shot_count = 0
+        self.pulsewave_charge = 0
+        self.shield_state = False
     
     
     def triangle(self):
@@ -32,6 +34,18 @@ class Player(CircleShape):
         rotated_vector = unit_vector.rotate(self.rotation)
         rotated_with_speed_vector = rotated_vector * PLAYER_SPEED * dt
         self.position += rotated_with_speed_vector
+        
+    def strafe_right(self, dt):
+        unit_vector = pygame.Vector2(0, 1)
+        rotated_vector = unit_vector.rotate(self.rotation + 90)
+        rotated_with_speed_vector = rotated_vector * PLAYER_SPEED * dt
+        self.position += rotated_with_speed_vector
+
+    def strafe_left(self, dt):
+        unit_vector = pygame.Vector2(0, 1)
+        rotated_vector = unit_vector.rotate(self.rotation - 90)
+        rotated_with_speed_vector = rotated_vector * PLAYER_SPEED * dt
+        self.position += rotated_with_speed_vector
 
     def shoot(self):
         if self.shot_cooldown_timer > 0:
@@ -49,6 +63,9 @@ class Player(CircleShape):
         self.shot_cooldown_timer = PLAYER_SHOOT_COOLDOWN_SECONDS
         if self.piercing_shot_count > 0:
             self.piercing_shot_count -= 1
+
+    def pulsewave(self):
+        pass
         
 
     def update(self, dt):
@@ -59,8 +76,12 @@ class Player(CircleShape):
 
         if keys[pygame.K_a]:
             self.rotate(-1 * dt)
+        if keys[pygame.K_q]:
+            self.strafe_left(dt)
         if keys[pygame.K_d]:
             self.rotate(dt)
+        if keys[pygame.K_e]:
+            self.strafe_right(dt)
         if keys[pygame.K_w]:
             self.move(dt)
         if keys[pygame.K_s]:

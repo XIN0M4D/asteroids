@@ -10,6 +10,7 @@ from circleshape import CircleShape
 from shot import Shot
 from shield_buff import ShieldBuff
 from piercing_shots import PiercingShot
+
 def show_start_menu(screen):
     font_title = pygame.font.SysFont(None, 72)
     font_info = pygame.font.SysFont(None, 36)
@@ -40,59 +41,76 @@ def show_start_menu(screen):
         clock.tick(60)
 
 def run_game(screen):
+
     pygame.font.init()
+
     font = pygame.font.SysFont(None, 36)
+
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
     ShieldBuffs = pygame.sprite.Group()
     PiercingShots = pygame.sprite.Group()
+
     Player.containers = (updatable, drawable)
     Asteroid.containers = (asteroids, updatable, drawable)
     AsteroidField.containers = (updatable,)
     Shot.containers = (shots, drawable, updatable)
     ShieldBuff.containers = (ShieldBuffs,drawable, updatable)
     PiercingShot.containers = (PiercingShots, drawable, updatable)
+
     clock = pygame.time.Clock()
+
     dt = 0
+
     player = Player( SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+
     asteroid_field = AsteroidField()
+
     score = 0
-    shield_state = False
+
+    
+
     while True:
         log_state()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
+            
         screen.fill("black")
+
         updatable.update(dt)
+
         for shieldbuff in ShieldBuffs:
             if shieldbuff.collides_with(player):
                 shieldbuff.kill()
                 log_event("shield_gained")
-                shield_state = True
+                player.shield_state = True
                 player.color = "blue"
+
         for piercingshot in PiercingShots:
             if piercingshot.collides_with(player):
                 log_event("piercing_shots_gained")
                 piercingshot.kill()
-                player.piercing_shot_count += 25
+                player.piercing_shot_count += 5
+
         for object in asteroids:
-            if object.collides_with(player) and shield_state == True:
+            if object.collides_with(player) and player.shield_state == True:
                 log_event("player_hit, shiled_lost")
                 object.kill()
                 shield_state = False
                 player.color = "pink"
-            elif object.collides_with(player) and shield_state == False:
+            elif object.collides_with(player) and player.shield_state == False:
                  log_event("player_hit")
                  score = 0
                  return
+            
         for object in asteroids:
             for shot in shots:
                 if object.collides_with(shot) and player.piercing_shot_count > 0:
                     log_event("asteroid_shot")
-                    result = object.split()
+                    result = object.split(player)
                     if result == "split":
                         score += 1
                     elif result == "killed":
@@ -100,16 +118,23 @@ def run_game(screen):
                 elif object.collides_with(shot):
                      log_event("asteroid_shot")
                      shot.kill()
-                     result = object.split()
+                     result = object.split(player)
                      if result == "split":
                         score += 1
                      elif result == "killed":
                         score += 5
+
         for sprite in drawable:
             sprite.draw(screen)
+
+        shots_surface = font.render(f"piercing shots: {player.piercing_shot_count}", True, (255, 255, 255))
+        screen.blit(shots_surface, (10, 690))
+
         score_surface = font.render(f"Score: {score}", True, (255, 255, 255))
-        screen.blit(score_surface, (10, 690))
+        screen.blit(score_surface, (10, 670))
+
         pygame.display.flip()
+
         dt = clock.tick(60) / 1000
         
 if __name__ == "__main__":

@@ -5,6 +5,8 @@ import random
 from logger import log_event
 from shield_buff import ShieldBuff
 from piercing_shots import PiercingShot
+from player import Player
+
 
 class Asteroid(CircleShape):
     def __init__(self, x, y, radius):
@@ -16,11 +18,13 @@ class Asteroid(CircleShape):
     def update(self, dt):
         self.position += (self.velocity * dt)
 
-    def split(self):
+    def split(self, player):
         self.kill()
+        if player.pulsewave_charge < 100:
+            player.pulsewave_charge += 2
         if self.radius <= ASTEROID_MIN_RADIUS:
             drop_chance = random.randint(1, 50)
-            if drop_chance == 1:
+            if drop_chance == 1 and player.shield_state == False:
                 ShieldBuff(self.position, self.position)
             elif drop_chance == 2 or drop_chance == 3 or drop_chance == 4:
                 PiercingShot(self.position, self.position)

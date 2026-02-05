@@ -4,16 +4,17 @@ ideas for further development of the game in order to further devlopment my skil
 - player sprite color change ( based on score )(scrapped idea, plan to use colour change to indicate power up state)
 - [
     simple power ups ( faster shoot speed, insta kill shot, double points, , bombs)
-    piercing shots
+    
+    aoe pulse wave (expanding pulse wave, centered on player)
 
-    piering shots = 0
+    knockback on impact.
+    new method in player. outlined
+    new variable in player - pulsewave_charge done
+    each asteroid provide pulsewave charge unless charge is @ 100(ammount subject to change)
+    pulse activated on key press 'space'
+    @ 100 charge pulsewave can be used, removes 100 charge
+    circle around player indicating pulse is available.
 
-    player.collides_with(buff)
-    piercing shots += 25
-
-    if piercing shots > 0, no shot.kill on impact
-
-    each time shot is pressed, piercing shots -= 1
     
 
 
@@ -33,3 +34,5 @@ from boot.dev
 - different weapon types ( laser, shotgun)
 - adjust asteroid shape
 - change palyer hit box to match spritew
+
+piercing shots too frequent, lower ammount given per pickup, keep spawn rate as to encourage traversing the map
