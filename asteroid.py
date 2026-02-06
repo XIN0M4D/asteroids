@@ -20,8 +20,6 @@ class Asteroid(CircleShape):
 
     def split(self, player):
         self.kill()
-        if player.pulsewave_charge < 100:
-            player.pulsewave_charge += 2
         if self.radius <= ASTEROID_MIN_RADIUS:
             drop_chance = random.randint(1, 50)
             if drop_chance == 1 and player.shield_state == False:

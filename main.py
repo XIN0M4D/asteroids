@@ -1,6 +1,6 @@
 import pygame
 import sys
-from constants import SCREEN_HEIGHT, SCREEN_WIDTH
+from constants import SCREEN_HEIGHT, SCREEN_WIDTH, LINE_WIDTH
 from logger import log_state
 from player import Player
 from asteroid import Asteroid
@@ -10,6 +10,7 @@ from circleshape import CircleShape
 from shot import Shot
 from shield_buff import ShieldBuff
 from piercing_shots import PiercingShot
+from knockback_wave import Knockback_Wave
 
 def show_start_menu(screen):
     font_title = pygame.font.SysFont(None, 72)
@@ -52,6 +53,7 @@ def run_game(screen):
     shots = pygame.sprite.Group()
     ShieldBuffs = pygame.sprite.Group()
     PiercingShots = pygame.sprite.Group()
+    knockback_waves = pygame.sprite.Group()
 
     Player.containers = (updatable, drawable)
     Asteroid.containers = (asteroids, updatable, drawable)
@@ -59,6 +61,7 @@ def run_game(screen):
     Shot.containers = (shots, drawable, updatable)
     ShieldBuff.containers = (ShieldBuffs,drawable, updatable)
     PiercingShot.containers = (PiercingShots, drawable, updatable)
+    Knockback_Wave.containers = (knockback_waves, drawable, updatable)
 
     clock = pygame.time.Clock()
 
@@ -82,6 +85,29 @@ def run_game(screen):
 
         updatable.update(dt)
 
+        for wave in knockback_waves:
+            for asteroid in asteroids:
+                if wave.collides_with(asteroid):
+                    offset = asteroid.position - wave.position
+                    distance = offset.length()
+
+                    if distance == 0:
+                        direction = pygame.Vector2(1, 0)
+                    else:
+                        direction = offset / distance   # same as normalize()
+
+            # assume your wave has a radius attribute
+                        max_radius = wave.radius
+
+            # factor goes from 1.0 at center -> 0.0 at edge
+                        falloff = max(0, 1 - distance / max_radius)
+
+                        base_strength = 600
+                        knockback_strength = base_strength * falloff
+
+                        asteroid.velocity += direction * knockback_strength
+
+
         for shieldbuff in ShieldBuffs:
             if shieldbuff.collides_with(player):
                 shieldbuff.kill()
@@ -99,7 +125,7 @@ def run_game(screen):
             if object.collides_with(player) and player.shield_state == True:
                 log_event("player_hit, shiled_lost")
                 object.kill()
-                shield_state = False
+                player.shield_state = False
                 player.color = "pink"
             elif object.collides_with(player) and player.shield_state == False:
                  log_event("player_hit")
@@ -115,23 +141,33 @@ def run_game(screen):
                         score += 1
                     elif result == "killed":
                         score += 5
+                        if player.knockback_charge < 100:
+                            player.knockback_charge += 4
                 elif object.collides_with(shot):
-                     log_event("asteroid_shot")
-                     shot.kill()
-                     result = object.split(player)
-                     if result == "split":
+                    log_event("asteroid_shot")
+                    shot.kill()
+                    result = object.split(player)
+                    if result == "split":
                         score += 1
-                     elif result == "killed":
+                    elif result == "killed":
                         score += 5
+                        if player.knockback_charge < 100:
+                            player.knockback_charge += 4
 
         for sprite in drawable:
             sprite.draw(screen)
+
+        if player.knockback_charge >= 100:  
+            pygame.draw.circle( screen, "purple", (int(player.position.x), int(player.position.y)), player.radius + 10, LINE_WIDTH )
 
         shots_surface = font.render(f"piercing shots: {player.piercing_shot_count}", True, (255, 255, 255))
         screen.blit(shots_surface, (10, 690))
 
         score_surface = font.render(f"Score: {score}", True, (255, 255, 255))
-        screen.blit(score_surface, (10, 670))
+        screen.blit(score_surface, (10, 650))
+
+        pulse_wave_surface = font.render(f"pulse wave: {player.knockback_charge}" ,True,(255, 255, 255))
+        screen.blit(pulse_wave_surface, (10, 670))
 
         pygame.display.flip()
 

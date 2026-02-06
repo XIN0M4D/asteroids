@@ -1,6 +1,7 @@
 from constants import PLAYER_RADIUS, LINE_WIDTH, PLAYER_TURN_SPEED, PLAYER_SPEED, PLAYER_SHOT_SPEED, SHOT_RADIUS, PLAYER_SHOOT_COOLDOWN_SECONDS
 from circleshape import CircleShape
 from shot import Shot
+from knockback_wave import Knockback_Wave
 import pygame
 
 class Player(CircleShape):
@@ -11,7 +12,7 @@ class Player(CircleShape):
         self.shot_cooldown_timer = 0
         self.color = "pink"
         self.piercing_shot_count = 0
-        self.pulsewave_charge = 0
+        self.knockback_charge = 0
         self.shield_state = False
     
     
@@ -64,8 +65,11 @@ class Player(CircleShape):
         if self.piercing_shot_count > 0:
             self.piercing_shot_count -= 1
 
-    def pulsewave(self):
-        pass
+    def knockback(self):
+        if self.knockback_charge >= 100:
+            Knockback_Wave(self.position.x, self.position.y)
+            self.knockback_charge -= 100
+
         
 
     def update(self, dt):
@@ -88,3 +92,5 @@ class Player(CircleShape):
             self.move(-1 * dt)
         if keys[pygame.K_SPACE]:
                 self.shoot()
+        if keys[pygame.K_r]:
+            self.knockback()

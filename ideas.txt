@@ -5,15 +5,9 @@ ideas for further development of the game in order to further devlopment my skil
 - [
     simple power ups ( faster shoot speed, insta kill shot, double points, , bombs)
     
-    aoe pulse wave (expanding pulse wave, centered on player)
+    )
 
-    knockback on impact.
-    new method in player. outlined
-    new variable in player - pulsewave_charge done
-    each asteroid provide pulsewave charge unless charge is @ 100(ammount subject to change)
-    pulse activated on key press 'space'
-    @ 100 charge pulsewave can be used, removes 100 charge
-    circle around player indicating pulse is available.
+    
 
     
 
