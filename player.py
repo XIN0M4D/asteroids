@@ -1,6 +1,8 @@
-from constants import PLAYER_RADIUS, LINE_WIDTH, PLAYER_TURN_SPEED, PLAYER_SPEED, PLAYER_SHOT_SPEED, SHOT_RADIUS, PLAYER_SHOOT_COOLDOWN_SECONDS
+from constants import PLAYER_RADIUS, LINE_WIDTH, PLAYER_TURN_SPEED, PLAYER_SPEED, PLAYER_SHOT_SPEED, SHOT_RADIUS, PLAYER_SHOOT_COOLDOWN_SECONDS, PLAYER_CANON_COOLDOWN_SECONDS, PLAYER_DOUBLE_SHOT_COOLDOWN_SECONDS, SMALL_SHOT_RADIUS, CANON_SHOT_RADIUS
 from circleshape import CircleShape
 from shot import Shot
+from canonball import Canonball
+from small_shot import SmallShot
 from knockback_wave import Knockback_Wave
 import pygame
 
@@ -14,6 +16,9 @@ class Player(CircleShape):
         self.piercing_shot_count = 0
         self.knockback_charge = 0
         self.shield_state = False
+        self.weapon = self.shoot
+        self.cannon_available = True
+        self.double_shot_available = True
     
     
     def triangle(self):
@@ -65,6 +70,40 @@ class Player(CircleShape):
         if self.piercing_shot_count > 0:
             self.piercing_shot_count -= 1
 
+    def canon(self):
+        if self.shot_cooldown_timer > 0:
+            return
+        
+        shot = Canonball(self.position.x, self.position.y, CANON_SHOT_RADIUS)
+        shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOT_SPEED
+
+        if self.piercing_shot_count > 0:
+            shot.color = "red"  
+            self.piercing_shot_count -= 1
+        else:
+            shot.color = "pink"  
+    
+        self.shot_cooldown_timer = PLAYER_CANON_COOLDOWN_SECONDS
+        if self.piercing_shot_count > 0:
+            self.piercing_shot_count -= 1
+
+    def double_shot(self):
+        if self.shot_cooldown_timer > 0:
+            return
+        
+        shot = SmallShot(self.position.x, self.position.y, SMALL_SHOT_RADIUS)
+        shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOT_SPEED
+
+        if self.piercing_shot_count > 0:
+            shot.color = "red"  
+            self.piercing_shot_count -= 1
+        else:
+            shot.color = "pink"  
+    
+        self.shot_cooldown_timer = PLAYER_DOUBLE_SHOT_COOLDOWN_SECONDS
+        if self.piercing_shot_count > 0:
+            self.piercing_shot_count -= 1
+
     def knockback(self):
         if self.knockback_charge >= 100:
             Knockback_Wave(self.position.x, self.position.y)
@@ -80,17 +119,45 @@ class Player(CircleShape):
 
         if keys[pygame.K_a]:
             self.rotate(-1 * dt)
+
         if keys[pygame.K_q]:
             self.strafe_left(dt)
+
         if keys[pygame.K_d]:
             self.rotate(dt)
+
         if keys[pygame.K_e]:
             self.strafe_right(dt)
+
         if keys[pygame.K_w]:
             self.move(dt)
+
         if keys[pygame.K_s]:
             self.move(-1 * dt)
+
         if keys[pygame.K_SPACE]:
-                self.shoot()
+                if self.weapon == self.shoot:
+                    self.shoot()
+                if self.weapon == self.canon:
+                    self.canon()
+                if self.weapon == self.double_shot:
+                    self.double_shot()
+
         if keys[pygame.K_r]:
             self.knockback()
+
+        if keys[pygame.K_1]:
+            self.weapon = self.shoot
+            self.piercing_shot_count = 0
+
+        if keys[pygame.K_2]:
+            if self.cannon_available == True:
+                self.weapon = self.canon
+                self.piercing_shot_count = 0
+                
+        if keys[pygame.K_3]:
+            if self.double_shot_available == True:
+                self.weapon = self.double_shot
+                self.piercing_shot_count = 0
+
+

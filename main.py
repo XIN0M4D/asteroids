@@ -8,6 +8,8 @@ from asteroidfield import AsteroidField
 from logger import log_event
 from circleshape import CircleShape
 from shot import Shot
+from small_shot import SmallShot
+from canonball import Canonball
 from shield_buff import ShieldBuff
 from piercing_shots import PiercingShot
 from knockback_wave import Knockback_Wave
@@ -51,6 +53,8 @@ def run_game(screen):
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
+    canonballs = pygame.sprite.Group()
+    small_shots = pygame.sprite.Group()
     ShieldBuffs = pygame.sprite.Group()
     PiercingShots = pygame.sprite.Group()
     knockback_waves = pygame.sprite.Group()
@@ -59,6 +63,8 @@ def run_game(screen):
     Asteroid.containers = (asteroids, updatable, drawable)
     AsteroidField.containers = (updatable,)
     Shot.containers = (shots, drawable, updatable)
+    Canonball.containers = (canonballs, drawable, updatable)
+    SmallShot.containers = (small_shots, drawable, updatable)
     ShieldBuff.containers = (ShieldBuffs,drawable, updatable)
     PiercingShot.containers = (PiercingShots, drawable, updatable)
     Knockback_Wave.containers = (knockback_waves, drawable, updatable)
@@ -116,10 +122,14 @@ def run_game(screen):
                 player.color = "blue"
 
         for piercingshot in PiercingShots:
-            if piercingshot.collides_with(player):
+            if piercingshot.collides_with(player) and player.weapon != player.double_shot:
                 log_event("piercing_shots_gained")
                 piercingshot.kill()
-                player.piercing_shot_count += 5
+                player.piercing_shot_count += 10
+            if piercingshot.collides_with(player) and player.weapon == player.double_shot:
+                log_event("piercing_shots_gained")
+                piercingshot.kill()
+                player.piercing_shot_count += 20
 
         for object in asteroids:
             if object.collides_with(player) and player.shield_state == True:
@@ -153,6 +163,48 @@ def run_game(screen):
                         score += 5
                         if player.knockback_charge < 100:
                             player.knockback_charge += 4
+            
+            for canonball in canonballs:
+                if object.collides_with(canonball) and player.piercing_shot_count > 0:
+                    log_event("asteroid_canon_shot")
+                    result = object.split(player)
+                    if result == "split":
+                        score += 1
+                    elif result == "killed":
+                        score += 5
+                        if player.knockback_charge < 100:
+                            player.knockback_charge += 10
+                elif object.collides_with(canonball):
+                    log_event("asteroid_canon_shot")
+                    canonball.kill()
+                    result = object.split(player)
+                    if result == "split":
+                        score += 1
+                    elif result == "killed":
+                        score += 5
+                        if player.knockback_charge < 100:
+                            player.knockback_charge += 10
+
+            for smallshot in small_shots:
+                if object.collides_with(smallshot) and player.piercing_shot_count > 0:
+                    log_event("asteroid_small_shot")
+                    result = object.split(player)
+                    if result == "split":
+                        score += 1
+                    elif result == "killed":
+                        score += 5
+                        if player.knockback_charge < 100:
+                            player.knockback_charge += 4
+                elif object.collides_with(smallshot):
+                    log_event("asteroid_small_shot")
+                    smallshot.kill()
+                    result = object.split(player)
+                    if result == "split":
+                        score += 1
+                    elif result == "killed":
+                        score += 5
+                        if player.knockback_charge < 100:
+                            player.knockback_charge += 4
 
         for sprite in drawable:
             sprite.draw(screen)
@@ -166,7 +218,7 @@ def run_game(screen):
         score_surface = font.render(f"Score: {score}", True, (255, 255, 255))
         screen.blit(score_surface, (10, 650))
 
-        pulse_wave_surface = font.render(f"pulse wave: {player.knockback_charge}" ,True,(255, 255, 255))
+        pulse_wave_surface = font.render(f"pulse wave: {player.knockback_charge}%" ,True,(255, 255, 255))
         screen.blit(pulse_wave_surface, (10, 670))
 
         pygame.display.flip()

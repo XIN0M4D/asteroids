@@ -29,4 +29,9 @@ from boot.dev
 - adjust asteroid shape
 - change palyer hit box to match spritew
 
-piercing shots too frequent, lower ammount given per pickup, keep spawn rate as to encourage traversing the map
+new weapons added, everything working, further tweaks needed
+-prevent piercing shots carrying over between weapon switching
+-add weapon switch text
+-make canon balls knock background
+- add the double tap feature for small shots.
+-add weapon spawning, remove default enabled
